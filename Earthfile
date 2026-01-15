@@ -40,18 +40,7 @@ COMMON_SETUP_AND_MIX:
 integration-test-postgres:
     FROM +setup-base
     ARG POSTGRES="11.11"
-
-    IF [ "$POSTGRES" = "16.2-alpine" ]
-        # for 16 we need an upgraded version of pg_dump;
-        # alpine 3.16 does not come with the postgres 16 client by default;
-        # we must first update the public keys for the packages because they
-        # might have been rotated since our image was built
-        RUN apk add -X https://dl-cdn.alpinelinux.org/alpine/v3.19/main -u alpine-keys
-        RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.19/main' >> /etc/apk/repositories
-        RUN apk add postgresql16-client
-    ELSE
-        RUN apk add postgresql-client
-    END
+    RUN apk add postgresql-client
 
     DO +COMMON_SETUP_AND_MIX
 
