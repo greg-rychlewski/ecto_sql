@@ -28,6 +28,12 @@ if Code.ensure_loaded?(MyXQL) do
     end
 
     @impl true
+    def read_only_transaction(conn, opts, fun) do
+      {:ok, _} = query(conn, "SET TRANSACTION READ ONLY", [], log: opts[:log])
+      DBConnection.transaction(conn, fun, opts)
+    end
+
+    @impl true
     def query_many(conn, sql, params, opts) do
       ensure_list_params!(params)
       opts = Keyword.put_new(opts, :query_type, :text)

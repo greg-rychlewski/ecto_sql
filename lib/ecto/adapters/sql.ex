@@ -281,6 +281,11 @@ defmodule Ecto.Adapters.SQL do
         Ecto.Adapters.SQL.transaction(meta, opts, fun)
       end
 
+      @doc false
+      def read_only_transaction(repo, opts, fun) do
+        Ecto.Adapters.SQL.read_only_transaction(Ecto.Adapter.lookup_meta(repo), @conn, opts, fun)
+      end
+
       @impl true
       def in_transaction?(meta) do
         Ecto.Adapters.SQL.in_transaction?(meta)
@@ -1467,6 +1472,34 @@ defmodule Ecto.Adapters.SQL do
   defp last_non_ecto_entries([], _, acc), do: acc
 
   ## Connection helpers
+
+  @doc false
+  def read_only_transaction(adapter_meta, connection, opts, callback) do
+    %{pid: pool, telemetry: telemetry, opts: default_opts, log_stacktrace_mfa: log_stacktrace_mfa} =
+      adapter_meta
+
+    opts = with_log(telemetry, log_stacktrace_mfa, [], opts ++ default_opts)
+
+    callback = fn transaction_conn ->
+      previous_conn = put_conn(pool, transaction_conn)
+
+      try do
+        callback.()
+      after
+        reset_conn(pool, previous_conn)
+      end
+    end
+
+    if function_exported?(connection, :read_only_transaction, 3) do
+      DBConnection.run(
+        get_conn_or_pool(pool, adapter_meta),
+        &connection.read_only_transaction(&1, opts, callback),
+        opts
+      )
+    else
+      raise ArgumentError, "read-only transactions are not supported by #{inspect(connection)}"
+    end
+  end
 
   defp checkout_or_transaction(fun, adapter_meta, opts, callback) do
     %{pid: pool, telemetry: telemetry, opts: default_opts, log_stacktrace_mfa: log_stacktrace_mfa} =

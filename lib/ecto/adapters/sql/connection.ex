@@ -46,6 +46,15 @@ defmodule Ecto.Adapters.SQL.Connection do
               {:ok, term} | {:error, Exception.t()}
 
   @doc """
+  Runs the given function inside a read-only transaction.
+  """
+  @callback read_only_transaction(connection, options :: Keyword.t(), (connection -> result)) ::
+              {:ok, result} | {:error, term()}
+            when result: var
+
+  @optional_callbacks read_only_transaction: 3
+
+  @doc """
   Returns a stream that prepares and executes the given query with
   `DBConnection`.
   """

@@ -132,6 +132,18 @@ if Code.ensure_loaded?(Postgrex) do
     end
 
     @impl true
+    def read_only_transaction(conn, opts, fun) do
+      DBConnection.transaction(
+        conn,
+        fn transaction_conn ->
+          {:ok, _} = query(transaction_conn, "SET TRANSACTION READ ONLY", [], log: opts[:log])
+          fun.(transaction_conn)
+        end,
+        opts
+      )
+    end
+
+    @impl true
     def query_many(_conn, _sql, _params, _opts) do
       raise RuntimeError, "query_many is not supported in the PostgreSQL adapter"
     end
