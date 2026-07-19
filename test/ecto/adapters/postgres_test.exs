@@ -158,7 +158,7 @@ defmodule Ecto.Adapters.PostgresTest do
   end
   
   test "fragment columns" do
-    query = from(f in fragment("select_rows(arg)"), columns: [:x], select: f.x) |> plan()
+    query = from(f in fragment("select_rows(arg)", columns: [:x]), select: f.x) |> plan()
     assert all(query) == ~s{SELECT f0."x" FROM select_rows(arg) AS f0 ("x")}
   end
 
