@@ -1965,6 +1965,16 @@ if Code.ensure_loaded?(Postgrex) do
       [name, ?\s, ?(, quote_names(fields), ?)]
     end
 
+    defp maybe_add_column_names({:fragment, meta, _}, name) do
+      fields = meta[:column_names]
+
+      if fields do
+        [name, ?\s, ?(, quote_names(fields), ?)]
+      else
+        name
+      end
+    end
+
     defp maybe_add_column_names(_, name), do: name
 
     defp quote_qualified_name(name, sources, ix) do

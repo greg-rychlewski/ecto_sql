@@ -666,7 +666,7 @@ if Code.ensure_loaded?(MyXQL) do
     defp operator_to_boolean(:or), do: " OR "
 
     defp parens_for_select([first_expr | _] = expr) do
-      if is_binary(first_expr) and String.match?(first_expr, ~r/^\s*select/i) do
+      if is_binary(first_expr) and String.match?(first_expr, ~r/^\s*select\s/i) do
         [?(, expr, ?)]
       else
         expr
@@ -1565,6 +1565,16 @@ if Code.ensure_loaded?(MyXQL) do
     defp maybe_add_column_names({:values, _, [types, _, _]}, name) do
       fields = Keyword.keys(types)
       [name, ?\s, ?(, quote_names(fields), ?)]
+    end
+
+    defp maybe_add_column_names({:fragment, meta, _}, name) do
+      fields = meta[:column_names]
+
+      if fields do
+        [name, ?\s, ?(, quote_names(fields), ?)]
+      else
+        name
+      end
     end
 
     defp maybe_add_column_names(_, name), do: name

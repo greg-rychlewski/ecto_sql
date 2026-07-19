@@ -167,6 +167,11 @@ defmodule Ecto.Adapters.TdsTest do
                  end
   end
 
+  test "from with_columns" do
+    query = from(f in with_columns(fragment("select_rows(arg)"), [:x]), select: f.x) |> plan()
+    assert all(query) == ~s{SELECT f0.[x] FROM select_rows(arg) AS f0 ([x])}
+  end
+
   test "join with subquery" do
     posts = subquery("posts" |> where(title: ^"hello") |> select([r], %{x: r.x, y: r.y}))
 
