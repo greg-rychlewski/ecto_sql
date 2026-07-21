@@ -84,8 +84,7 @@ defmodule EctoSQL.MixProject do
     if path = System.get_env("ECTO_PATH") do
       {:ecto, path: path}
     else
-      {:ecto, git: "https://github.com/greg-rychlewski/ecto.git", branch: "fragment_columns"}
-      # {:ecto, "~> 3.14.0"}
+      {:ecto, "~> 3.14.0"}
     end
   end
 
