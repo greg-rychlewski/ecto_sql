@@ -156,7 +156,7 @@ defmodule Ecto.Adapters.PostgresTest do
                    all(from(f in fragment("select ? as x", ^"abc"), select: f) |> plan())
                  end
   end
-  
+
   test "fragment columns" do
     query = from(f in fragment("select_rows(arg)", columns: [:x]), select: f.x) |> plan()
     assert all(query) == ~s{SELECT f0."x" FROM select_rows(arg) AS f0 ("x")}
@@ -818,7 +818,7 @@ defmodule Ecto.Adapters.PostgresTest do
     query = Schema |> select([r], r.x + 2) |> plan()
     assert all(query) == ~s{SELECT s0."x" + 2 FROM "schema" AS s0}
 
-    query = Schema |> select([r], (not r.x) < r.y) |> plan()
+    query = Schema |> select([r], not r.x < r.y) |> plan()
     assert all(query) == ~s{SELECT (NOT (s0."x")) < s0."y" FROM "schema" AS s0}
   end
 
